@@ -11,5 +11,5 @@ fx:controller="com.geekbrains.sep22.geekcloudclient.CloudMainController">
     <ListView fx:id="clientView" layoutX="29.0" layoutY="35.0" prefHeight="372.0" prefWidth="252.0"/>
     <ListView fx:id="serverView" layoutX="355.0" layoutY="35.0" prefHeight="372.0" prefWidth="252.0"/>
     <Button onAction="#sendToServer" layoutX="299.0" layoutY="111.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="37.0" text="&gt;"/>
-    <Button layoutX="299.0" layoutY="162.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="37.0" text="&lt;"/>
+    <Button onAction="#downloadFile" layoutX="299.0" layoutY="162.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="37.0" text="&lt;"/>
 </AnchorPane>
