@@ -1,5 +1,6 @@
 package com.geekbrains.nio.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -22,7 +23,7 @@ public class TelnetTerminal {
      * touch filename - create file with filename
      * mkdir dirname - create directory with dirname
      * cat filename - show filename bytes
-     * */
+     */
 
     private Path current;
     private ServerSocketChannel server;
@@ -79,12 +80,47 @@ public class TelnetTerminal {
         if (command.equals("ls")) {
             String files = Files.list(current)
                     .map(p -> p.getFileName().toString())
-                    .collect(Collectors.joining("\n\r"));
+                    .collect(Collectors.joining("\n\r")) + "\n\r";
             channel.write(ByteBuffer.wrap(files.getBytes(StandardCharsets.UTF_8)));
+        } else if (command.equals("exit")) {
+            channel.write(ByteBuffer.wrap("Goodbye\n\r".getBytes(StandardCharsets.UTF_8)));
+            channel.close();
+        } else if (command.equals("pwd")) {
+            channel.write(ByteBuffer.wrap(current.toAbsolutePath().toString().getBytes(StandardCharsets.UTF_8)));
         } else {
-            byte[] bytes = command.getBytes(StandardCharsets.UTF_8);
-            channel.write(ByteBuffer.wrap(bytes));
+            String[] com = command.split(" ");
+            if (com.length == 2) {
+                String result = "";
+                switch (com[0]) {
+                    case "cd" -> {
+                        if (Files.isDirectory(current.resolve(com[1])))
+                            current = current.resolve(com[1]);
+                        else result = "is not directory";
+                    }
+                    case "cat" -> {
+                        Path file1 = current.resolve(com[1]);
+                        if (Files.exists(file1)) result = Files.readString(file1);
+                        else result = "file is not exist";
+                    }
+                    case "touch" -> {
+                        Path createdFile = Files.createFile(current.resolve(com[1]));
+                        result = "File " + createdFile.getFileName().toString() + " is created\n\r";
+                    }
+                    case "mkdir" -> {
+                        Path createdPath = Files.createDirectory(current.resolve(com[1]));
+                        result = "Path " + createdPath.getFileName().toString() + " is created\n\r";
+                    }
+                    default -> {
+                        break;
+                    }
+                }
+                channel.write(ByteBuffer.wrap(result.getBytes(StandardCharsets.UTF_8)));
+            } else {
+                byte[] bytes = (command + "\n\r").getBytes(StandardCharsets.UTF_8);
+                channel.write(ByteBuffer.wrap(bytes));
+            }
         }
+
     }
 
 
