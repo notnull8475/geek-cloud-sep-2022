@@ -1,10 +1,7 @@
 package com.geekbrains.sep22.geekcloudclient;
 
 import com.geekbrains.DaemonThreadFactory;
-import com.geekbrains.model.CloudMessage;
-import com.geekbrains.model.FileMessage;
-import com.geekbrains.model.FileRequest;
-import com.geekbrains.model.ListMessage;
+import com.geekbrains.model.*;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
@@ -90,6 +87,16 @@ public class CloudMainController implements Initializable {
                 File selectedFile = new File(currentDirectory + "/" + selected);
                 if (selectedFile.isDirectory()) {
                     setCurrentDirectory(currentDirectory + "/" + selected);
+                }
+            }
+        });
+        serverView.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getClickCount() == 2) {
+                String selected = serverView.getSelectionModel().getSelectedItem();
+                try {
+                    network.getOutputStream().writeObject(new DirFileListRequest(selected));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
