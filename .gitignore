@@ -1,3 +1,4 @@
 # Project exclude paths
 /geek-cloud-client/target/
 /geek-cloud-server/target/
+/common/target
