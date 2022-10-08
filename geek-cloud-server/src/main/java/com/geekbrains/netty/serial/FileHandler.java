@@ -34,6 +34,39 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
                 log.debug("serverDir: {}", serverDir);
                 ctx.writeAndFlush(new ListMessage(serverDir));
             }
+        } else if (cloudMessage instanceof DeleteFile delFile) {
+            File toDelete = new File(delFile.getFileName());
+            if (toDelete.exists()){
+                if (toDelete.isFile()){
+                    if (toDelete.delete()){
+                        log.debug("File is deleted");
+                    } else {
+                        log.error("File is not deleted");
+                    }
+                } else if (toDelete.isDirectory()){
+                    String[]entries = toDelete.list();
+                    for(String s: entries){
+                        File currentFile = new File(toDelete.getPath(),s);
+                        currentFile.delete();
+                    }
+                }
+            }
+            
+        } else if (cloudMessage instanceof  RenameFile renameFile) {
+            File file = new File(serverDir + File.separator + renameFile.getFileName());
+            File newNameFile = new File(serverDir + File.separator + renameFile.getNewFileName());
+            if (newNameFile.exists()) {
+                log.error("File with name " + renameFile.getNewFileName() + " is exist ");
+            } else {
+                log.debug("file to rename " + file.getAbsolutePath());
+                log.debug("new file name " + newNameFile.getAbsolutePath());
+                if (file.renameTo(newNameFile)) {
+                    log.debug("File is renamed");
+                } else {
+                    log.debug("file is not renamed");
+                }
+
+            }
         }
     }
 }
