@@ -29,6 +29,8 @@ public class CloudMainController implements Initializable {
     public ListView<String> clientView;
     public ListView<String> serverView;
     private String currentDirectory;
+    private String selectedItem;
+    private boolean isClientView = true;
 
     private Network<ObjectDecoderInputStream, ObjectEncoderOutputStream> network;
     
@@ -87,13 +89,18 @@ public class CloudMainController implements Initializable {
         setCurrentDirectory(System.getProperty("user.home"));
         fillView(clientView, getFiles(currentDirectory));
         clientView.setOnMouseClicked(event -> {
+            isClientView = true;
+            selectedItem = clientView.getSelectionModel().getSelectedItem();
             if (event.getClickCount() == 2) {
-                String selected = clientView.getSelectionModel().getSelectedItem();
-                File selectedFile = new File(currentDirectory + "/" + selected);
+                File selectedFile = new File(currentDirectory + "/" + selectedItem);
                 if (selectedFile.isDirectory()) {
-                    setCurrentDirectory(currentDirectory + "/" + selected);
+                    setCurrentDirectory(currentDirectory + "/" + selectedItem);
                 }
             }
+        });
+        serverView.setOnMouseClicked(mouseEvent -> {
+            isClientView = false;
+            selectedItem = serverView.getSelectionModel().getSelectedItem();
         });
     }
 
@@ -137,18 +144,16 @@ public class CloudMainController implements Initializable {
     }
 
     public void renameFile(ActionEvent actionEvent) throws IOException {
-        String fileName = serverView.getSelectionModel().getSelectedItem();
-        if (clientView.isMouseTransparent()){
-            try{
-                Files.delete(Path.of(clientView.getSelectionModel().getSelectedItem()));
-            } catch (IOException e) {
-                showError("Error on delete file: " + e.getMessage());
-//                throw new RuntimeException(e);
-            }
+        if (isClientView){
+            renameLocalForm(new File(selectedItem));
         }
-        if (serverView.isMouseTransparent()){
+//            try{
+//                renameLocalForm(new File(clientView.getSelectionModel().getSelectedItem()));
+//            } catch (IOException e) {
+//                showError("Error on rename file: " + e.getMessage());
+////                throw new RuntimeException(e);
+//            }
 
-        }
 //        network.getOutputStream().writeObject(new FileRequest(fileName));
     }
 
