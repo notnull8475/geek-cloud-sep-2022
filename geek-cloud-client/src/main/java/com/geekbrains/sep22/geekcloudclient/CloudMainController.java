@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+@Slf4j
 public class CloudMainController implements Initializable {
     public ListView<String> clientView;
     public ListView<String> serverView;
@@ -30,7 +32,7 @@ public class CloudMainController implements Initializable {
     private boolean isClientView = true;
 
     private Network<ObjectDecoderInputStream, ObjectEncoderOutputStream> network;
-    
+
     private Socket socket;
 
     private boolean needReadMessages = true;
@@ -133,36 +135,66 @@ public class CloudMainController implements Initializable {
         return List.of();
     }
 
-    public void deleteFile(ActionEvent actionEvent) {
-        if (clientView.isMouseTransparent()){
-            try{
-                Files.delete(Path.of(clientView.getSelectionModel().getSelectedItem()));
-            } catch (IOException e) {
-                showError("Error on delete file: " + e.getMessage());
-//                throw new RuntimeException(e);
+    public void deleteFile(ActionEvent actionEvent) throws IOException {
+        if (showConfirm().getModalResult()) {
+            if (isClientView) {
+                if (new File(currentDirectory + File.separator + selectedItem).delete()) {
+                    log.debug("file is deleted");
+                    fillView(clientView, getFiles(currentDirectory));
+                }
+                showError("FILE IS NOT DELETED");
+            } else {
+                try {
+                    network.getOutputStream().writeObject(new DeleteFile(selectedItem));
+                } catch (IOException e) {
+                    log.debug("ERROR Delete Failed " + e.getMessage());
+                    showError("Delete failed " + e.getMessage());
+                }
             }
-        }
-        if (serverView.isMouseTransparent()){
-
         }
     }
 
     public void renameFile(ActionEvent actionEvent) throws IOException {
-        if (isClientView){
-            renameLocalForm(new File(selectedItem));
+        RenameFormController renameFormController = showRenameForm();
+        if (renameFormController.getModalResult()) {
+            if (isClientView) {
+                renameLocalForm(renameFormController.getNewName());
+            } else {
+                log.debug("server file selected");
+                renameOnServerForm(renameFormController.getNewName());
+            }
         }
-//            try{
-//                renameLocalForm(new File(clientView.getSelectionModel().getSelectedItem()));
-//            } catch (IOException e) {
-//                showError("Error on rename file: " + e.getMessage());
-////                throw new RuntimeException(e);
-//            }
-
-//        network.getOutputStream().writeObject(new FileRequest(fileName));
     }
 
-    private void renameLocalForm(File file) throws IOException {
+    private void renameLocalForm(String newName) {
 //        String newFileName = fileName;
+        File file = new File(currentDirectory + File.separator + selectedItem);
+        File newNameFile = new File(currentDirectory + File.separator + newName);
+        if (newNameFile.exists()) {
+            showError("File with name " + newName + " is exist ");
+        } else {
+            log.debug("file to rename " + file.getAbsolutePath());
+            log.debug("new file name " + newNameFile.getAbsolutePath());
+            if (file.renameTo(newNameFile)) {
+                fillView(clientView, getFiles(currentDirectory));
+            } else {
+                showError("file not renamed");
+            }
+
+        }
+    }
+
+
+    private void renameOnServerForm(String newName) {
+        try {
+            network.getOutputStream().writeObject(new RenameFile(selectedItem, newName));
+        } catch (IOException e) {
+            log.debug("ERROR Rename Failed " + e.getMessage());
+            showError("rename failed " + e.getMessage());
+        }
+    }
+
+    private RenameFormController showRenameForm() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("rename-form.fxml"));
         Parent parent = loader.load();
@@ -175,18 +207,31 @@ public class CloudMainController implements Initializable {
         stage.showAndWait();
 
         RenameFormController renameFormController = loader.getController();
-        if(renameFormController.getModalResult()){
-            String newFileName = renameFormController.getNewName();
-            File newNameFile  = new File(newFileName);
-            if (newNameFile.exists()){
-                showError("File with name " + newFileName + " is exist ");
-            } else {
-                boolean success = file.renameTo(newNameFile);
-            }
-        }
+        return renameFormController;
     }
-    private void showError(String error){
 
+    private ConfirmChoiceFormController showConfirm() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("choice-trust-form.fxml"));
+        Parent parent = loader.load();
+
+        Stage stage = new Stage();
+        stage.setScene(new Scene(parent));
+
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.showAndWait();
+
+        ConfirmChoiceFormController confirmForm = loader.getController();
+        return confirmForm;
+
+    }
+
+
+    private void showError(String error) {
+        log.debug(error);
 //                TODO 03-10-2022 показать ошибку клиенту
     }
+
+
 }
