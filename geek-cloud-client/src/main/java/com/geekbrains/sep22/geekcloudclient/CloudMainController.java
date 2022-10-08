@@ -1,10 +1,7 @@
 package com.geekbrains.sep22.geekcloudclient;
 
 import com.geekbrains.DaemonThreadFactory;
-import com.geekbrains.model.CloudMessage;
-import com.geekbrains.model.FileMessage;
-import com.geekbrains.model.FileRequest;
-import com.geekbrains.model.ListMessage;
+import com.geekbrains.model.*;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
@@ -101,6 +98,13 @@ public class CloudMainController implements Initializable {
         serverView.setOnMouseClicked(mouseEvent -> {
             isClientView = false;
             selectedItem = serverView.getSelectionModel().getSelectedItem();
+            if (mouseEvent.getClickCount() == 2) {
+                try {
+                    network.getOutputStream().writeObject(new DirFileListRequest(selectedItem));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
     }
 
