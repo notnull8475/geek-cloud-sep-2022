@@ -146,7 +146,7 @@ public class CloudMainController implements Initializable {
             } else {
                 try {
                     network.getOutputStream().writeObject(new DeleteFile(selectedItem));
-                    network.getOutputStream().writeObject(new DirFileListRequest(selectedItem));
+                    network.getOutputStream().writeObject(new DirFileListRequest());
                 } catch (IOException e) {
                     log.debug("ERROR Delete Failed " + e.getMessage());
                     showError("Delete failed " + e.getMessage());
@@ -163,6 +163,7 @@ public class CloudMainController implements Initializable {
             } else {
                 log.debug("server file selected");
                 renameOnServerForm(renameFormController.getNewName());
+                network.getOutputStream().writeObject(new DirFileListRequest());
             }
         }
     }

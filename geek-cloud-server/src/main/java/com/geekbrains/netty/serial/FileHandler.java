@@ -29,11 +29,13 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
         } else if (cloudMessage instanceof FileRequest fileRequest) {
             ctx.writeAndFlush(new FileMessage(serverDir.resolve(fileRequest.getFileName())));
         } else if (cloudMessage instanceof DirFileListRequest dirList){
-            if (new File(serverDir.toString() + File.separator + dirList.getDirName()).isDirectory()) {
-                serverDir = serverDir.resolve(dirList.getDirName()).normalize();
-                log.debug("serverDir: {}", serverDir);
-                ctx.writeAndFlush(new ListMessage(serverDir));
-            }
+            if (dirList.getDirName() != null) {
+                if (new File(serverDir.toString() + File.separator + dirList.getDirName()).isDirectory()) {
+                    serverDir = serverDir.resolve(dirList.getDirName()).normalize();
+                    log.debug("serverDir: {}", serverDir);
+                }
+            } ctx.writeAndFlush(new ListMessage(serverDir));
+
         } else if (cloudMessage instanceof DeleteFile delFile) {
             File toDelete = new File(delFile.getFileName());
             if (toDelete.exists()){
