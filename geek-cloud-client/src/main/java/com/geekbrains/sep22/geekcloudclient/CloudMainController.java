@@ -39,12 +39,19 @@ public class CloudMainController implements Initializable {
 
     private DaemonThreadFactory factory;
 
-    public void downloadFile(ActionEvent actionEvent) throws IOException {
+    public void downloadFile() throws IOException {
         String fileName = serverView.getSelectionModel().getSelectedItem();
         network.getOutputStream().writeObject(new FileRequest(fileName));
     }
 
-    public void sendToServer(ActionEvent actionEvent) throws IOException {
+    public void copyFile(ActionEvent actionEvent) throws IOException {
+        if (isClientView)
+            sendToServer();
+        else
+            downloadFile();
+    }
+
+    private void sendToServer() throws IOException {
         String fileName = clientView.getSelectionModel().getSelectedItem();
         network.getOutputStream().writeObject(new FileMessage(Path.of(currentDirectory).resolve(fileName)));
     }
@@ -156,7 +163,7 @@ public class CloudMainController implements Initializable {
     }
 
     public void renameFile(ActionEvent actionEvent) throws IOException {
-        RenameFormController renameFormController = showRenameForm();
+        RenameFormController renameFormController = showOneItemForm(FormActions.RENAME);
         if (renameFormController.getModalResult()) {
             if (isClientView) {
                 renameLocalForm(renameFormController.getNewName());
@@ -197,9 +204,15 @@ public class CloudMainController implements Initializable {
         }
     }
 
-    private RenameFormController showRenameForm() throws IOException {
+    private RenameFormController showOneItemForm(FormActions action) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("rename-form.fxml"));
+        if (action.equals(FormActions.RENAME)) {
+            loader.setLocation(getClass().getResource("rename-form.fxml"));
+        } else if (action.equals(FormActions.CREATE)) {
+            loader.setLocation(getClass().getResource("create-file-path-form.fxml"));
+        } else {
+            throw new RuntimeException("неверные данные формы");
+        }
         Parent parent = loader.load();
 
         Stage stage = new Stage();
@@ -209,9 +222,10 @@ public class CloudMainController implements Initializable {
 
         stage.showAndWait();
 
-        RenameFormController renameFormController = loader.getController();
-        return renameFormController;
+        RenameFormController form = loader.getController();
+        return form;
     }
+
 
     private ConfirmChoiceFormController showConfirm() throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -237,4 +251,49 @@ public class CloudMainController implements Initializable {
     }
 
 
+    public void createNewFile(ActionEvent event) throws IOException {
+        RenameFormController form = showOneItemForm(FormActions.CREATE);
+        if (form.getModalResult()) {
+            if (isClientView) {
+                File file = new File(currentDirectory + File.separator + form.getNewName());
+                if (file.exists()){
+                    showError("File is exist!");
+                    return;
+                }
+                if (!file.createNewFile()){
+                    showError("file is not created");
+                }
+            } else {
+                network.getOutputStream().writeObject(new CreateFileRequest(form.getNewName()));
+                network.getOutputStream().writeObject(new DirFileListRequest(selectedItem));
+            }
+        }
+    }
+
+    public void createNewPath(ActionEvent event) throws IOException {
+        RenameFormController form = showOneItemForm(FormActions.CREATE);
+        if (form.getModalResult()) {
+            if (isClientView) {
+                File file = new File(currentDirectory + File.separator + form.getNewName());
+                if (file.exists()){
+                    showError("Path is exist!");
+                    return;
+                }
+                if (!file.mkdirs()){
+                    showError("Path is not created");
+                }
+            } else {
+                network.getOutputStream().writeObject(new CreatePathRequest(form.getNewName()));
+                network.getOutputStream().writeObject(new DirFileListRequest(selectedItem));
+            }
+        }
+    }
+
+    public void authorization(ActionEvent event) {
+
+    }
+    enum FormActions{
+        RENAME,
+        CREATE
+    }
 }
