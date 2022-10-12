@@ -27,37 +27,38 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
             Files.write(serverDir.resolve(fileMessage.getFileName()), fileMessage.getBytes());
             ctx.writeAndFlush(new ListMessage(serverDir));
         } else if (cloudMessage instanceof FileRequest fileRequest) {
-            ctx.writeAndFlush(new FileMessage(serverDir.resolve(fileRequest.getFileName())));
-        } else if (cloudMessage instanceof DirFileListRequest dirList){
+            ctx.writeAndFlush(new FileMessage(serverDir.resolve(fileRequest.fileName())));
+        } else if (cloudMessage instanceof DirFileListRequest dirList) {
             if (dirList.getDirName() != null) {
                 if (new File(serverDir.toString() + File.separator + dirList.getDirName()).isDirectory()) {
                     serverDir = serverDir.resolve(dirList.getDirName()).normalize();
                     log.debug("serverDir: {}", serverDir);
                 }
-            } ctx.writeAndFlush(new ListMessage(serverDir));
+            }
+            ctx.writeAndFlush(new ListMessage(serverDir));
 
         } else if (cloudMessage instanceof DeleteFile delFile) {
             File toDelete = new File(serverDir + File.separator + delFile.getFileName());
-            if (toDelete.exists()){
+            if (toDelete.exists()) {
 
-                if (toDelete.isFile()){
+                if (toDelete.isFile()) {
                     log.debug("IS FILE");
-                    if (toDelete.delete()){
+                    if (toDelete.delete()) {
                         log.debug("File is deleted");
                     } else {
                         log.error("File is not deleted");
                     }
-                } else if (toDelete.isDirectory()){
+                } else if (toDelete.isDirectory()) {
                     log.debug("IS DIRECTORY");
-                    String[]entries = toDelete.list();
-                    for(String s: entries){
-                        File currentFile = new File(toDelete.getPath(),s);
+                    String[] entries = toDelete.list();
+                    for (String s : entries) {
+                        File currentFile = new File(toDelete.getPath(), s);
                         currentFile.delete();
                     }
                 }
             }
-            
-        } else if (cloudMessage instanceof  RenameFile renameFile) {
+
+        } else if (cloudMessage instanceof RenameFile renameFile) {
             File file = new File(serverDir + File.separator + renameFile.getFileName());
             File newNameFile = new File(serverDir + File.separator + renameFile.getNewFileName());
             if (newNameFile.exists()) {
@@ -72,6 +73,26 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
                 }
 
             }
+        } else if (cloudMessage instanceof CreatePathRequest path) {
+            File createPath = new File(serverDir + File.separator + path.name());
+            if (createPath.exists()) {
+                ctx.writeAndFlush(new ErrorMessage("Path " + path.name() + " is exist! "));
+                return;
+            }
+            if (!createPath.mkdir()) {
+                ctx.writeAndFlush(new ErrorMessage("Path " + path.name() + " is not created! "));
+            }
+            ctx.writeAndFlush(new ListMessage(serverDir));
+        } else if (cloudMessage instanceof CreateFileRequest file) {
+            File createFile = new File(serverDir + File.separator + file.name());
+            if (createFile.exists()) {
+                ctx.writeAndFlush(new ErrorMessage("Path " + file.name() + " is exist! "));
+                return;
+            }
+            if (!createFile.createNewFile()) {
+                ctx.writeAndFlush(new ErrorMessage("Path " + file.name() + " is not created! "));
+            }
+            ctx.writeAndFlush(new ListMessage(serverDir));
         }
     }
 }

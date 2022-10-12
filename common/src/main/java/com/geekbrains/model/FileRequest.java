@@ -2,14 +2,7 @@ package com.geekbrains.model;
 
 import lombok.Getter;
 
-@Getter
-public class FileRequest implements CloudMessage {
-
-    private final String fileName;
-
-    public FileRequest(String fileName) {
-        this.fileName = fileName;
-    }
+public record FileRequest(String fileName) implements CloudMessage {
 
     @Override
     public MessageType getType() {

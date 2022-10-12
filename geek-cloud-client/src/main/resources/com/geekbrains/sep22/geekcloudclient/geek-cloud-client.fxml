@@ -7,17 +7,18 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="442.0"
-            prefWidth="634.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="505.0"
+            prefWidth="887.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.geekbrains.sep22.geekcloudclient.CloudMainController">
-    <ListView fx:id="clientView" layoutX="29.0" layoutY="35.0" prefHeight="372.0" prefWidth="252.0"/>
-    <ListView fx:id="serverView" layoutX="355.0" layoutY="35.0" prefHeight="372.0" prefWidth="252.0"/>
-    <Button layoutX="299.0" layoutY="35.0" mnemonicParsing="false" onAction="#sendToServer" prefHeight="36.0"
-            prefWidth="37.0" text="&gt;"/>
-    <Button layoutX="299.0" layoutY="88.0" mnemonicParsing="false" onAction="#downloadFile" prefHeight="36.0"
-            prefWidth="37.0" text="&lt;"/>
-    <Button layoutX="299.0" layoutY="145.0" mnemonicParsing="false" onAction="#deleteFile" prefHeight="36.0"
-            prefWidth="37.0" text="X"/>
-    <Button layoutX="299.0" layoutY="203.0" mnemonicParsing="false" onAction="#renameFile" prefHeight="36.0"
-            prefWidth="37.0" text="R"/>
+    <ListView fx:id="clientView" layoutX="14.0" layoutY="35.0" prefHeight="372.0" prefWidth="420.0"/>
+    <ListView fx:id="serverView" layoutX="453.0" layoutY="35.0" prefHeight="372.0" prefWidth="420.0"/>
+    <Button layoutX="273.0" layoutY="418.0" mnemonicParsing="false" onAction="#copyFile" prefHeight="25.0"
+            prefWidth="106.0" text="скопировать"/>
+    <Button layoutX="787.0" layoutY="418.0" mnemonicParsing="false" onAction="#deleteFile" prefHeight="25.0"
+            prefWidth="86.0" text="Удалить"/>
+    <Button layoutX="390.0" layoutY="418.0" mnemonicParsing="false" onAction="#renameFile" prefHeight="25.0"
+            prefWidth="127.0" text="Переименовать"/>
+    <Button layoutX="530.0" layoutY="418.0" mnemonicParsing="false" onAction="#createNewFile" text="Создать файл"/>
+    <Button layoutX="655.0" layoutY="418.0" mnemonicParsing="false" onAction="#createNewPath" text="Создать папку"/>
+    <Button layoutX="768.0" layoutY="2.0" mnemonicParsing="false" onAction="#authorization" text="Подключиться"/>
 </AnchorPane>
