@@ -5,11 +5,12 @@ import lombok.Getter;
 @Getter
 public class DirFileListRequest implements CloudMessage {
 
-    private final String dirName;
+    private String dirName = null;
 
     public DirFileListRequest(String dirName) {
         this.dirName = dirName;
     }
+    public DirFileListRequest(){}
 
     @Override
     public MessageType getType() {

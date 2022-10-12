@@ -13,6 +13,6 @@ public class DeleteFile implements CloudMessage {
 
     @Override
     public MessageType getType() {
-        return MessageType.FILE_REQUEST;
+        return MessageType.FILE_DELETE;
     }
 }
