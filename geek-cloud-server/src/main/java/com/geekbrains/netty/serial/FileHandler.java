@@ -37,15 +37,18 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
             } ctx.writeAndFlush(new ListMessage(serverDir));
 
         } else if (cloudMessage instanceof DeleteFile delFile) {
-            File toDelete = new File(delFile.getFileName());
+            File toDelete = new File(serverDir + File.separator + delFile.getFileName());
             if (toDelete.exists()){
+
                 if (toDelete.isFile()){
+                    log.debug("IS FILE");
                     if (toDelete.delete()){
                         log.debug("File is deleted");
                     } else {
                         log.error("File is not deleted");
                     }
                 } else if (toDelete.isDirectory()){
+                    log.debug("IS DIRECTORY");
                     String[]entries = toDelete.list();
                     for(String s: entries){
                         File currentFile = new File(toDelete.getPath(),s);
