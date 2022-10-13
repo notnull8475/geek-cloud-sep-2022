@@ -76,21 +76,21 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
         } else if (cloudMessage instanceof CreatePathRequest path) {
             File createPath = new File(serverDir + File.separator + path.name());
             if (createPath.exists()) {
-                ctx.writeAndFlush(new ErrorMessage("Path " + path.name() + " is exist! "));
+                ctx.writeAndFlush(new ResultMessage("Path " + path.name() + " is exist! "));
                 return;
             }
             if (!createPath.mkdir()) {
-                ctx.writeAndFlush(new ErrorMessage("Path " + path.name() + " is not created! "));
+                ctx.writeAndFlush(new ResultMessage("Path " + path.name() + " is not created! "));
             }
             ctx.writeAndFlush(new ListMessage(serverDir));
         } else if (cloudMessage instanceof CreateFileRequest file) {
             File createFile = new File(serverDir + File.separator + file.name());
             if (createFile.exists()) {
-                ctx.writeAndFlush(new ErrorMessage("Path " + file.name() + " is exist! "));
+                ctx.writeAndFlush(new ResultMessage("Path " + file.name() + " is exist! "));
                 return;
             }
             if (!createFile.createNewFile()) {
-                ctx.writeAndFlush(new ErrorMessage("Path " + file.name() + " is not created! "));
+                ctx.writeAndFlush(new ResultMessage("Path " + file.name() + " is not created! "));
             }
             ctx.writeAndFlush(new ListMessage(serverDir));
         }

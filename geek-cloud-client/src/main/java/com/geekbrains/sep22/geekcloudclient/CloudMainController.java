@@ -30,6 +30,8 @@ public class CloudMainController implements Initializable {
     private String currentDirectory;
     private String selectedItem;
     private boolean isClientView = true;
+    private String server = "127.0.0.1";
+    private int port = 8189;
 
     private Network<ObjectDecoderInputStream, ObjectEncoderOutputStream> network;
 
@@ -75,7 +77,7 @@ public class CloudMainController implements Initializable {
 
     private void initNetwork() {
         try {
-            socket = new Socket("localhost", 8189);
+            socket = new Socket(server, port);
             network = new Network<>(
                     new ObjectDecoderInputStream(socket.getInputStream()),
                     new ObjectEncoderOutputStream(socket.getOutputStream())
@@ -239,9 +241,30 @@ public class CloudMainController implements Initializable {
 
         stage.showAndWait();
 
-        ConfirmChoiceFormController confirmForm = loader.getController();
-        return confirmForm;
+        return loader.getController();
 
+    }
+
+    private TwoFieldFormController showTwoFieldForm(FormActions action, String f1, String f2) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        if (action == FormActions.AUTH) {
+            loader.setLocation(getClass().getResource("auth-form.fxml"));
+        } else if (action == FormActions.CONF){
+            loader.setLocation(getClass().getResource("settings-form.fxml"));
+
+        }
+        Parent parent = loader.load();
+
+        Stage stage = new Stage();
+        stage.setScene(new Scene(parent));
+
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.showAndWait();
+
+        TwoFieldFormController form = loader.getController();
+        form.init(f1,f2);
+        return form;
     }
 
 
@@ -290,10 +313,34 @@ public class CloudMainController implements Initializable {
     }
 
     public void authorization(ActionEvent event) {
+        try {
+            TwoFieldFormController form = showTwoFieldForm(FormActions.AUTH,null,null);
+            network.getOutputStream().writeObject(new AuthorizationRequest(form.getFieldsText()[0],form.getFieldsText()[1]));
+        } catch (IOException e) {
+            showError("Проблема авторизации "  + e.getMessage());
+//            throw new RuntimeException(e);
+        }
 
     }
+
+    public void confEdit(ActionEvent actionEvent) {
+        try {
+            TwoFieldFormController form = showTwoFieldForm(FormActions.CONF, server,String.valueOf(port));
+            if (form.getResult()) {
+                server = form.getFieldsText()[0];
+                port = Integer.parseInt(form.getFieldsText()[1]);
+//                TODO сделать в форме ввод только чисел для окна конфигурации.
+            }
+        } catch (IOException e) {
+            showError("Ошибка изменения настроек " + e.getMessage());
+//            throw new RuntimeException(e);
+        }
+    }
+
     enum FormActions{
         RENAME,
-        CREATE
+        CREATE,
+        AUTH,
+        CONF
     }
 }

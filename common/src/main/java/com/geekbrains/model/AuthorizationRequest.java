@@ -1,6 +1,9 @@
 package com.geekbrains.model;
 
-public class AuthorizationRequest implements CloudMessage{
+public record AuthorizationRequest(
+        String username,
+        String password
+) implements CloudMessage {
 
 
     @Override

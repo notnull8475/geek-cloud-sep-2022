@@ -13,5 +13,5 @@
     <Button layoutX="572.0" layoutY="418.0" mnemonicParsing="false" onAction="#createNewFile" text="Создать файл" />
     <Button layoutX="679.0" layoutY="418.0" mnemonicParsing="false" onAction="#createNewPath" text="Создать папку" />
     <Button layoutX="7.0" layoutY="2.0" mnemonicParsing="false" onAction="#authorization" text="Подключиться" />
-   <Button layoutX="116.0" layoutY="2.0" mnemonicParsing="false" text="Настройки" />
+   <Button layoutX="116.0" layoutY="2.0" mnemonicParsing="false" onAction="#confEdit" text="Настройки" />
 </AnchorPane>

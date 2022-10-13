@@ -10,8 +10,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class TwoFieldFormController implements Initializable {
-    public TextField field1;
-    public TextField field2;
+    private TextField field1;
+    private TextField field2;
     private boolean result;
 
     @Override
@@ -19,6 +19,10 @@ public class TwoFieldFormController implements Initializable {
         result = false;
     }
 
+    public void init(String f1, String f2){
+        field1.appendText(f1);
+        field2.appendText(f2);
+    }
 
     public void accept(ActionEvent actionEvent) {
         result = true;

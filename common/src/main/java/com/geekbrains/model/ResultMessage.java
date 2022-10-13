@@ -1,10 +1,11 @@
 package com.geekbrains.model;
 
-public record ErrorMessage(
+public record ResultMessage(
+        ResultType type,
         String message
 ) implements CloudMessage {
     @Override
     public MessageType getType() {
-        return MessageType.ERROR;
+        return MessageType.RESULT;
     }
 }
