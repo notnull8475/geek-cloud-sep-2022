@@ -8,7 +8,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="176.0"
             prefWidth="320.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.geekbrains.sep22.geekcloudclient.TwoFieldFormController">
+            fx:controller="com.geekbrains.sep22.geekcloudclient.subFormsControllers.TwoFieldFormController">
     <Button layoutX="46.0" layoutY="128.0" mnemonicParsing="false" onAction="#accept" text="Подключиться"/>
     <Label layoutX="54.0" layoutY="51.0" text="Логин"/>
     <Label layoutX="46.0" layoutY="88.0" text="Пароль"/>

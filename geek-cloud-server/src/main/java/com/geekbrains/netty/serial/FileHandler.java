@@ -51,6 +51,7 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
                 } else if (toDelete.isDirectory()) {
                     log.debug("IS DIRECTORY");
                     String[] entries = toDelete.list();
+                    assert entries != null;
                     for (String s : entries) {
                         File currentFile = new File(toDelete.getPath(), s);
                         currentFile.delete();
@@ -76,21 +77,21 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
         } else if (cloudMessage instanceof CreatePathRequest path) {
             File createPath = new File(serverDir + File.separator + path.name());
             if (createPath.exists()) {
-                ctx.writeAndFlush(new ResultMessage("Path " + path.name() + " is exist! "));
+                ctx.writeAndFlush(new ResultMessage(ResultType.MESSAGE, "Path " + path.name() + " is exist! "));
                 return;
             }
             if (!createPath.mkdir()) {
-                ctx.writeAndFlush(new ResultMessage("Path " + path.name() + " is not created! "));
+                ctx.writeAndFlush(new ResultMessage(ResultType.SUCCESS, "Path " + path.name() + " is not created! "));
             }
             ctx.writeAndFlush(new ListMessage(serverDir));
         } else if (cloudMessage instanceof CreateFileRequest file) {
             File createFile = new File(serverDir + File.separator + file.name());
             if (createFile.exists()) {
-                ctx.writeAndFlush(new ResultMessage("Path " + file.name() + " is exist! "));
+                ctx.writeAndFlush(new ResultMessage(ResultType.MESSAGE, "Path " + file.name() + " is exist! "));
                 return;
             }
             if (!createFile.createNewFile()) {
-                ctx.writeAndFlush(new ResultMessage("Path " + file.name() + " is not created! "));
+                ctx.writeAndFlush(new ResultMessage(ResultType.ERROR, "Path " + file.name() + " is not created! "));
             }
             ctx.writeAndFlush(new ListMessage(serverDir));
         }

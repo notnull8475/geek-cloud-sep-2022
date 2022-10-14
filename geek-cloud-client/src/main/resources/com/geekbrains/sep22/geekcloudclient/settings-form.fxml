@@ -8,7 +8,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="179.0"
             prefWidth="347.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.geekbrains.sep22.geekcloudclient.TwoFieldFormController">
+            fx:controller="com.geekbrains.sep22.geekcloudclient.subFormsControllers.TwoFieldFormController">
     <TextField layoutX="115.0" layoutY="40.0" fx:id="field1"/>
     <TextField layoutX="115.0" layoutY="90.0" fx:id="field2"/>
     <Label layoutX="48.0" layoutY="44.0" text="Сервер"/>

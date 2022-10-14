@@ -8,4 +8,6 @@ module com.geekbrains.sep22.geekcloudclient {
 
     opens com.geekbrains.sep22.geekcloudclient to javafx.fxml;
     exports com.geekbrains.sep22.geekcloudclient;
+    exports com.geekbrains.sep22.geekcloudclient.subFormsControllers;
+    opens com.geekbrains.sep22.geekcloudclient.subFormsControllers to javafx.fxml;
 }

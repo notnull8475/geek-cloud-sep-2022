@@ -2,17 +2,16 @@ package com.geekbrains.sep22.geekcloudclient;
 
 import com.geekbrains.DaemonThreadFactory;
 import com.geekbrains.model.*;
+import com.geekbrains.sep22.geekcloudclient.subFormsControllers.ChoiceFormController;
+import com.geekbrains.sep22.geekcloudclient.subFormsControllers.FormActions;
+import com.geekbrains.sep22.geekcloudclient.subFormsControllers.RenameFormController;
+import com.geekbrains.sep22.geekcloudclient.subFormsControllers.SubForms;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ListView;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -21,10 +20,13 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
 
 @Slf4j
-public class CloudMainController implements Initializable {
+public class CloudMainController extends SubForms implements Initializable {
     public ListView<String> clientView;
     public ListView<String> serverView;
     private String currentDirectory;
@@ -32,6 +34,7 @@ public class CloudMainController implements Initializable {
     private boolean isClientView = true;
     private String server = "127.0.0.1";
     private int port = 8189;
+
 
     private Network<ObjectDecoderInputStream, ObjectEncoderOutputStream> network;
 
@@ -96,6 +99,7 @@ public class CloudMainController implements Initializable {
         initNetwork();
         setCurrentDirectory(System.getProperty("user.home"));
         fillView(clientView, getFiles(currentDirectory));
+
         clientView.setOnMouseClicked(event -> {
             isClientView = true;
             selectedItem = clientView.getSelectionModel().getSelectedItem();
@@ -145,7 +149,7 @@ public class CloudMainController implements Initializable {
     }
 
     public void deleteFile(ActionEvent actionEvent) throws IOException {
-        if (showConfirm().getModalResult()) {
+        if (showConfirm().getResult()) {
             if (isClientView) {
                 if (new File(currentDirectory + File.separator + selectedItem).delete()) {
                     log.debug("file is deleted");
@@ -166,12 +170,12 @@ public class CloudMainController implements Initializable {
 
     public void renameFile(ActionEvent actionEvent) throws IOException {
         RenameFormController renameFormController = showOneItemForm(FormActions.RENAME);
-        if (renameFormController.getModalResult()) {
+        if (renameFormController.getResult()) {
             if (isClientView) {
-                renameLocalForm(renameFormController.getNewName());
+                renameLocalForm(renameFormController.getData()[0]);
             } else {
                 log.debug("server file selected");
-                renameOnServerForm(renameFormController.getNewName());
+                renameOnServerForm(renameFormController.getData()[0]);
                 network.getOutputStream().writeObject(new DirFileListRequest());
             }
         }
@@ -206,68 +210,6 @@ public class CloudMainController implements Initializable {
         }
     }
 
-    private RenameFormController showOneItemForm(FormActions action) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        if (action.equals(FormActions.RENAME)) {
-            loader.setLocation(getClass().getResource("rename-form.fxml"));
-        } else if (action.equals(FormActions.CREATE)) {
-            loader.setLocation(getClass().getResource("create-file-path-form.fxml"));
-        } else {
-            throw new RuntimeException("неверные данные формы");
-        }
-        Parent parent = loader.load();
-
-        Stage stage = new Stage();
-        stage.setScene(new Scene(parent));
-
-        stage.initModality(Modality.WINDOW_MODAL);
-
-        stage.showAndWait();
-
-        RenameFormController form = loader.getController();
-        return form;
-    }
-
-
-    private ConfirmChoiceFormController showConfirm() throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("choice-trust-form.fxml"));
-        Parent parent = loader.load();
-
-        Stage stage = new Stage();
-        stage.setScene(new Scene(parent));
-
-        stage.initModality(Modality.WINDOW_MODAL);
-
-        stage.showAndWait();
-
-        return loader.getController();
-
-    }
-
-    private TwoFieldFormController showTwoFieldForm(FormActions action, String f1, String f2) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        if (action == FormActions.AUTH) {
-            loader.setLocation(getClass().getResource("auth-form.fxml"));
-        } else if (action == FormActions.CONF){
-            loader.setLocation(getClass().getResource("settings-form.fxml"));
-
-        }
-        Parent parent = loader.load();
-
-        Stage stage = new Stage();
-        stage.setScene(new Scene(parent));
-
-        stage.initModality(Modality.WINDOW_MODAL);
-
-        stage.showAndWait();
-
-        TwoFieldFormController form = loader.getController();
-        form.init(f1,f2);
-        return form;
-    }
-
-
     private void showError(String error) {
         log.debug(error);
 //                TODO 03-10-2022 показать ошибку клиенту
@@ -275,38 +217,38 @@ public class CloudMainController implements Initializable {
 
 
     public void createNewFile(ActionEvent event) throws IOException {
-        RenameFormController form = showOneItemForm(FormActions.CREATE);
-        if (form.getModalResult()) {
+        ChoiceFormController form = showOneItemForm(FormActions.CREATE);
+        if (form.getResult()) {
             if (isClientView) {
-                File file = new File(currentDirectory + File.separator + form.getNewName());
-                if (file.exists()){
+                File file = new File(currentDirectory + File.separator + form.getData()[0]);
+                if (file.exists()) {
                     showError("File is exist!");
                     return;
                 }
-                if (!file.createNewFile()){
+                if (!file.createNewFile()) {
                     showError("file is not created");
                 }
             } else {
-                network.getOutputStream().writeObject(new CreateFileRequest(form.getNewName()));
+                network.getOutputStream().writeObject(new CreateFileRequest(form.getData()[0]));
                 network.getOutputStream().writeObject(new DirFileListRequest(selectedItem));
             }
         }
     }
 
     public void createNewPath(ActionEvent event) throws IOException {
-        RenameFormController form = showOneItemForm(FormActions.CREATE);
-        if (form.getModalResult()) {
+        ChoiceFormController form = showOneItemForm(FormActions.CREATE);
+        if (form.getResult()) {
             if (isClientView) {
-                File file = new File(currentDirectory + File.separator + form.getNewName());
-                if (file.exists()){
+                File file = new File(currentDirectory + File.separator + form.getData()[0]);
+                if (file.exists()) {
                     showError("Path is exist!");
                     return;
                 }
-                if (!file.mkdirs()){
+                if (!file.mkdirs()) {
                     showError("Path is not created");
                 }
             } else {
-                network.getOutputStream().writeObject(new CreatePathRequest(form.getNewName()));
+                network.getOutputStream().writeObject(new CreatePathRequest(form.getData()[0]));
                 network.getOutputStream().writeObject(new DirFileListRequest(selectedItem));
             }
         }
@@ -314,10 +256,10 @@ public class CloudMainController implements Initializable {
 
     public void authorization(ActionEvent event) {
         try {
-            TwoFieldFormController form = showTwoFieldForm(FormActions.AUTH,null,null);
-            network.getOutputStream().writeObject(new AuthorizationRequest(form.getFieldsText()[0],form.getFieldsText()[1]));
+            ChoiceFormController form = showTwoFieldForm(FormActions.AUTH, null, null);
+            network.getOutputStream().writeObject(new AuthorizationRequest(form.getData()[0], form.getData()[1]));
         } catch (IOException e) {
-            showError("Проблема авторизации "  + e.getMessage());
+            showError("Проблема авторизации " + e.getMessage());
 //            throw new RuntimeException(e);
         }
 
@@ -325,10 +267,10 @@ public class CloudMainController implements Initializable {
 
     public void confEdit(ActionEvent actionEvent) {
         try {
-            TwoFieldFormController form = showTwoFieldForm(FormActions.CONF, server,String.valueOf(port));
+            ChoiceFormController form = showTwoFieldForm(FormActions.CONF, server, String.valueOf(port));
             if (form.getResult()) {
-                server = form.getFieldsText()[0];
-                port = Integer.parseInt(form.getFieldsText()[1]);
+                server = form.getData()[0];
+                port = Integer.parseInt(form.getData()[1]);
 //                TODO сделать в форме ввод только чисел для окна конфигурации.
             }
         } catch (IOException e) {
@@ -337,10 +279,5 @@ public class CloudMainController implements Initializable {
         }
     }
 
-    enum FormActions{
-        RENAME,
-        CREATE,
-        AUTH,
-        CONF
-    }
+
 }

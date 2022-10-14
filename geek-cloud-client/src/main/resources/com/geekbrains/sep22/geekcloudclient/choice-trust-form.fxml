@@ -4,8 +4,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="114.0" prefWidth="131.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.sep22.geekcloudclient.ConfirmChoiceFormController">
-   <Button layoutX="12.0" layoutY="69.0" mnemonicParsing="false" onAction="#yesConfirm" text="ДА" />
-   <Button layoutX="83.0" layoutY="69.0" mnemonicParsing="false" onAction="#noConfirm" text="НЕТ" />
-   <Label layoutX="12.0" layoutY="21.0" text="вы подтверждаете?" />
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="114.0"
+            prefWidth="131.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.geekbrains.sep22.geekcloudclient.subFormsControllers.ChoiceFormController">
+    <Button layoutX="12.0" layoutY="69.0" mnemonicParsing="false" onAction="#accept" text="ДА"/>
+    <Button layoutX="83.0" layoutY="69.0" mnemonicParsing="false" onAction="#cancel" text="НЕТ"/>
+    <Label layoutX="12.0" layoutY="21.0" text="вы подтверждаете?"/>
 </AnchorPane>
