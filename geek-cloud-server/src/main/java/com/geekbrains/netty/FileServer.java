@@ -1,5 +1,6 @@
 package com.geekbrains.netty;
 
+import com.geekbrains.db.DButils;
 import com.geekbrains.netty.serial.FileHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -20,12 +21,13 @@ public class FileServer {
         EventLoopGroup auth = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
         try {
+            DButils.init();
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(auth, worker)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
@@ -35,6 +37,7 @@ public class FileServer {
                     });
             ChannelFuture channelFuture = bootstrap.bind(8189).sync();
             log.debug("Server is ready on port: " + 8189);
+
             channelFuture.channel().closeFuture().sync(); // block
         } catch (Exception e) {
             throw new RuntimeException(e);
