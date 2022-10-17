@@ -52,7 +52,8 @@ public class SubForms {
             loader.setLocation(getClass().getResource("auth-form.fxml"));
         } else if (action == FormActions.CONF) {
             loader.setLocation(getClass().getResource("settings-form.fxml"));
-
+        } else if (action == FormActions.REGISTER){
+            loader.setLocation(getClass().getResource("reg-form.fxml"));
         }
         Parent parent = loader.load();
         TwoFieldFormController form = loader.getController();

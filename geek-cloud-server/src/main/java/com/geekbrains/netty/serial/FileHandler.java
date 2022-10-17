@@ -38,7 +38,7 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
         } else if (cloudMessage instanceof FileRequest fileRequest) {
             ctx.writeAndFlush(new FileMessage(serverDir.resolve(fileRequest.fileName())));
         } else if (cloudMessage instanceof DirFileListRequest dirList) {
-            getDirList(ctx, dirList);
+            ctx.writeAndFlush(getDirList(dirList));
         } else if (cloudMessage instanceof DeleteFile delFile) {
             deleteFile(delFile);
         } else if (cloudMessage instanceof RenameFile renameFile) {
@@ -50,7 +50,7 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
             ctx.writeAndFlush(createFile(file.name()));
             ctx.writeAndFlush(new ListMessage(serverDir));
         } else if (cloudMessage instanceof AuthorizationRequest auth) {
-            authUser(auth.username(), auth.password(), ctx);
+            ctx.writeAndFlush(authUser(auth.username(), auth.password()));
         } else if (cloudMessage instanceof RegistrationRequest reg) {
             ResultMessage rm = regUser(reg.username(), reg.password());
             if (rm.type().equals(ResultType.AUTH_ERROR)) ctx.close();
@@ -140,28 +140,28 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
         }
     }
 
-    private void getDirList(ChannelHandlerContext ctx, DirFileListRequest dirList) throws IOException {
+    private CloudMessage getDirList(DirFileListRequest dirList) throws IOException {
         if (dirList.getDirName() != null) {
             if (new File(serverDir.toString() + File.separator + dirList.getDirName()).isDirectory()) {
                 serverDir = serverDir.resolve(dirList.getDirName()).normalize();
                 log.debug("serverDir: {}", serverDir);
             }
         }
-        ctx.writeAndFlush(new ListMessage(serverDir));
+        return new ListMessage(serverDir);
     }
 
 
-    private void authUser(String username, String password, ChannelHandlerContext ctx) {
+    private ResultMessage authUser(String username, String password) {
         user = dbUtils.getUser(username, password);
         if (user != null) {
-            ctx.writeAndFlush(new ResultMessage(ResultType.AUTH_SUCCESS, "Авторизация прошла успешно"));
+            return new ResultMessage(ResultType.AUTH_SUCCESS, "Авторизация прошла успешно");
         } else {
-            ctx.writeAndFlush(new ResultMessage(ResultType.AUTH_ERROR, "Неверный логин или пароль"));
+            return new ResultMessage(ResultType.AUTH_ERROR, "Неверный логин или пароль");
         }
     }
 
     @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+    public void channelUnregistered(ChannelHandlerContext ctx)  {
         log.debug("CLIENT IS UNREGISTERED " + this.getClass().getName());
     }
 }
