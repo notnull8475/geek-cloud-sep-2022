@@ -26,6 +26,4 @@ public class TwoFieldFormController extends ChoiceFormController {
                 field2.getText()
         };
     }
-
-
 }

@@ -280,4 +280,13 @@ public class CloudMainController extends SubForms implements Initializable {
     }
 
 
+    public void registration(ActionEvent event) {
+        try {
+            ChoiceFormController form = showTwoFieldForm(FormActions.REGISTER, null, null);
+            network.getOutputStream().writeObject(new RegistrationRequest(form.getData()[0], form.getData()[1]));
+        } catch (IOException e) {
+            showError("Проблема регистрации " + e.getMessage());
+//            throw new RuntimeException(e);
+        }
+    }
 }

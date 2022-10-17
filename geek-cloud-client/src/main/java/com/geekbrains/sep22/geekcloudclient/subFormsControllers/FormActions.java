@@ -4,5 +4,6 @@ public enum FormActions {
     RENAME,
     CREATE,
     AUTH,
-    CONF
+    CONF,
+    REGISTER
 }

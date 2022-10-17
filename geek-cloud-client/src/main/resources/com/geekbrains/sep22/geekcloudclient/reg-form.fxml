@@ -5,7 +5,7 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="193.0"
             prefWidth="320.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.geekbrains.sep22.geekcloudclient.subFormsControllers.TwoFieldFormController">
-    <Button layoutX="46.0" layoutY="128.0" mnemonicParsing="false" onAction="#accept" text="Подключиться"/>
+    <Button layoutX="46.0" layoutY="128.0" mnemonicParsing="false" onAction="#accept" text="Зарегестрироваться"/>
     <Label layoutX="54.0" layoutY="51.0" text="Логин"/>
     <Label layoutX="46.0" layoutY="88.0" text="Пароль"/>
     <Button layoutX="192.0" layoutY="128.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0"
