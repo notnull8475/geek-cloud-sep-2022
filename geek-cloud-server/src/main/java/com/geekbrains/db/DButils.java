@@ -1,6 +1,7 @@
 package com.geekbrains.db;
 
 import com.geekbrains.User;
+import com.geekbrains.Utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -18,12 +19,22 @@ public class DButils implements SQLScripts {
         this.connection = connection;
     }
 
-    public User registerUser(String username, String password,String path) {
+    public User registerUser(String username, String password, String path) {
+        User user = getUser(username, password);
+        if (user != null) return user;
         try (PreparedStatement ps = connection.prepareStatement(registerUser)) {
-            ps.setString(0,username);
-            ps.setString(1,password);
-            ps.setString(2,path);
-
+            ps.setString(0, username);
+            ps.setString(1, password);
+            ps.setString(2, path);
+            ps.executeUpdate();
+            int id = getIdOfUser(username);
+            if (id == -1) {
+                log.error("ERROR ON USER REGISTRY");
+                return null;
+            }
+            user = new User(username, UUID.randomUUID(), id, path);
+            addSession(user);
+            return user;
 
         } catch (SQLException e) {
             log.error("ERROR ON SQL SCRIPT " + registerUser);
@@ -55,17 +66,25 @@ public class DButils implements SQLScripts {
     }
 
     public void logoutUser(User user) {
-
+        try(PreparedStatement ps = connection.prepareStatement(logoutUser)){
+            ps.setInt(0, user.id());
+            ps.executeUpdate();
+            connection.close();
+        }catch (SQLException e){
+            log.error("ERROR ON SQL SCRIPT " + logoutUser);
+            log.error("ERROR INFORMATION " + e.getMessage());
+            log.error("ERROR SQLSTATE " + e.getSQLState());
+        }
     }
 
-    private int getIdOfUser(String username){
-        try(PreparedStatement ps = connection.prepareStatement(getUserId)) {
+    private int getIdOfUser(String username) {
+        try (PreparedStatement ps = connection.prepareStatement(getUserId)) {
             ps.setString(0, username);
             ResultSet resultSet = ps.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("id");
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             log.error("ERROR ON SQL SCRIPT " + getUserId);
             log.error("ERROR INFORMATION " + e.getMessage());
             log.error("ERROR SQLSTATE " + e.getSQLState());
@@ -74,7 +93,13 @@ public class DButils implements SQLScripts {
     }
 
     private void addSession(User user) {
-
+        try (PreparedStatement ps = connection.prepareStatement(addSession)) {
+            ps.setString(0, user.name());
+            ps.setString(1, user.uuid().toString());
+            ps.setString(2, Utils.getTimeString());
+        } catch (SQLException e) {
+            log.debug("ERROR ON SQL " + addSession);
+        }
     }
 
     public static void check() {

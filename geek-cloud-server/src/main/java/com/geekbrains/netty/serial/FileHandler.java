@@ -55,7 +55,14 @@ public class FileHandler extends SimpleChannelInboundHandler<CloudMessage> {
             ResultMessage rm = regUser(reg.username(), reg.password());
             if (rm.type().equals(ResultType.AUTH_ERROR)) ctx.close();
             else ctx.writeAndFlush(rm);
+        } else if (cloudMessage instanceof LogoutRequest outuser) {
+            ctx.writeAndFlush(outUser(outuser.getUser()));
         }
+    }
+
+    private ResultMessage outUser(User user) {
+        dbUtils.logoutUser(user);
+        return new ResultMessage(ResultType.SUCCESS, user.name() + " exit");
     }
 
     private ResultMessage regUser(String username, String password) {
