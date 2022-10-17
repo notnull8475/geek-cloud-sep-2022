@@ -11,6 +11,7 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,6 +71,12 @@ public class CloudMainController extends SubForms implements Initializable {
                     Platform.runLater(() -> fillView(clientView, getFiles(currentDirectory)));
                 } else if (message instanceof ListMessage listMessage) {
                     Platform.runLater(() -> fillView(serverView, listMessage.getFiles()));
+                } else if (message instanceof ResultMessage result) {
+                    if (result.type().equals(ResultType.ERROR)){showError(result.message());}
+                    if (result.type().equals(ResultType.SUCCESS)){showMessage(result.message());}
+                    if (result.type().equals(ResultType.MESSAGE)){showMessage(result.message());}
+                    if (result.type().equals(ResultType.AUTH_ERROR)){showError(result.message());}
+                    if (result.type().equals(ResultType.AUTH_SUCCESS)){showMessage(result.message());}
                 }
             }
         } catch (Exception e) {
@@ -77,6 +84,8 @@ public class CloudMainController extends SubForms implements Initializable {
             e.printStackTrace();
         }
     }
+
+
 
     private void initNetwork() {
         try {
@@ -211,10 +220,28 @@ public class CloudMainController extends SubForms implements Initializable {
     }
 
     private void showError(String error) {
-        log.debug(error);
-//                TODO 03-10-2022 показать ошибку клиенту
-    }
+        log.error("ERROR " + error);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Test Connection");
 
+        // Header Text: null
+        alert.setHeaderText(null);
+        alert.setContentText(error);
+
+        alert.showAndWait();
+    }
+    private void showMessage(String message) {
+        log.debug("MESSAGE " + message);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Test Connection");
+
+        // Header Text: null
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
+
+    }
 
     public void createNewFile(ActionEvent event) throws IOException {
         ChoiceFormController form = showOneItemForm(FormActions.CREATE);
