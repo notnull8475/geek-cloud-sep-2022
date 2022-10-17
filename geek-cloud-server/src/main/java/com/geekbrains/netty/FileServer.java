@@ -20,8 +20,8 @@ public class FileServer {
     public static void main(String[] args) {
         EventLoopGroup auth = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
+        DButils.check();
         try {
-            DButils.init();
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(auth, worker)
                     .channel(NioServerSocketChannel.class)
