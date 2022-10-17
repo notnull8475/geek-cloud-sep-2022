@@ -1,6 +1,5 @@
 package com.geekbrains.sep22.geekcloudclient.subFormsControllers;
 
-import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -56,6 +55,8 @@ public class SubForms {
 
         }
         Parent parent = loader.load();
+        TwoFieldFormController form = loader.getController();
+        form.init(f1, f2);
 
         Stage stage = new Stage();
         stage.setScene(new Scene(parent));
@@ -64,8 +65,7 @@ public class SubForms {
 
         stage.showAndWait();
 
-        TwoFieldFormController form = loader.getController();
-        form.init(f1, f2);
+
         return form;
     }
 }

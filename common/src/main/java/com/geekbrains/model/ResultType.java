@@ -3,5 +3,7 @@ package com.geekbrains.model;
 public enum ResultType {
     ERROR,
     SUCCESS,
-    MESSAGE
+    MESSAGE,
+    AUTH_ERROR,
+    AUTH_SUCCESS
 }
