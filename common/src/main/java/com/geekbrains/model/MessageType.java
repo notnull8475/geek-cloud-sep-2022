@@ -10,5 +10,7 @@ public enum MessageType {
     AUTHORIZATION,
     CREAT_NEW_FILE,
     CREATE_NEW_PATH,
-    ERROR
+    REGISTRATION,
+    RESULT,
+    LOGOUT
 }

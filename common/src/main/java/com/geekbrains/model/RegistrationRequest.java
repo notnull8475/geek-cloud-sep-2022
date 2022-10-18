@@ -1,6 +1,6 @@
 package com.geekbrains.model;
 
-public record AuthorizationRequest(
+public record RegistrationRequest(
         String username,
         String password
 ) implements CloudMessage {
@@ -8,6 +8,6 @@ public record AuthorizationRequest(
 
     @Override
     public MessageType getType() {
-        return MessageType.AUTHORIZATION;
+        return MessageType.REGISTRATION;
     }
 }

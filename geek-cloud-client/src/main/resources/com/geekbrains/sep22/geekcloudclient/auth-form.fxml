@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="193.0"
+            prefWidth="320.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.geekbrains.sep22.geekcloudclient.subFormsControllers.TwoFieldFormController">
+    <Button layoutX="46.0" layoutY="128.0" mnemonicParsing="false" onAction="#accept" text="Подключиться"/>
+    <Label layoutX="54.0" layoutY="51.0" text="Логин"/>
+    <Label layoutX="46.0" layoutY="88.0" text="Пароль"/>
+    <Button layoutX="192.0" layoutY="128.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0"
+            prefWidth="97.0" text="Отмена"/>
+    <TextField fx:id="field1" layoutX="103.0" layoutY="47.0"/>
+    <TextField fx:id="field2" accessibleRole="PASSWORD_FIELD" layoutX="103.0" layoutY="84.0"/>
+</AnchorPane>
